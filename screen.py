@@ -3,7 +3,7 @@ from tkinter import *
 from tkinter import messagebox
 
 # TO DO:
-#když skončí čas udelat end() + popravim time widget, prozkoumat logiku corrected mistake
+# popravim time widget, prozkoumat logiku corrected mistake
 
 class Screen:
     def __init__(self):
@@ -21,9 +21,10 @@ class Screen:
         self.type_input.bind ("<KeyRelease>", lambda event: self.write())
         self.type_input.bind("<BackSpace>", self.backspace)
         self.corrected_mistake = 0
-        self.seconds = 60 # choose your second timer
+        self.seconds = 5 # choose your second timer
         self.intro()
         self.words = self.get_text()
+        self.succes_rate()
     
         
         self.window.mainloop()
@@ -101,7 +102,7 @@ class Screen:
 
     def widgets(self):
         
-        self.accuraccy = Label(text=f"ACCURACY: 0 %", fg="WHITE",bg="black")
+        self.accuraccy = Label(text=f"ACCURACY: {self.succes_rate()} %", fg="WHITE",bg="black")
         self.accuraccy.grid(row=0,column=3)
 
         minutes,second = divmod(self.seconds, 60)
@@ -233,24 +234,32 @@ class Screen:
         mist_count = len(self.entry_list) - self.mistakes
         perc = mist_count / len(self.entry_list)  * 100
         rounded_perc = round(perc,1)
-        return rounded_perc
-       except ZeroDivisionError:
-           pass
-       except TypeError:
-           pass
+        
+        if rounded_perc < 0:
+            return 0
+        
+        else:
+            return rounded_perc
+       except (ZeroDivisionError,AttributeError, TypeError):
+           return 0
+       
 
 
     def wpm(self):
-        words = self.count_press // 5
-        return words
+        try:
+            correct_chars = len(self.entry_list) - self.mistakes
+            words = correct_chars // 5
+            return words
+        except AttributeError:
+            pass
 
 
         
     def end(self):
-        with open("result.txt", "a") as data:
-            data.write(f"WPM: {self.wpm()}, CPM: {self.count_press}, Accuracy: {self.succes_rate()}%, Time: {self.seconds} seconds\n")
-        messagebox.showinfo("Type Speed Test", f"Your WPM: {self.wpm()}, CPM:{self.count_press}, Accuracy: {self.succes_rate()}%")
-        
+        # # with open("result.txt", "a") as data:
+        # #     data.write(f"WPM: {self.wpm()}, CPM: {self.count_press}, Accuracy: {self.succes_rate()}%, Time: {self.seconds} seconds\n")
+        # # messagebox.showinfo("Type Speed Test", f"Your WPM: {self.wpm()}, CPM:{self.count_press}, Accuracy: {self.succes_rate()}%")
+        pass
     
     def restart_game(self):
         
