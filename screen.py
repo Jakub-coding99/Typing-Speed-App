@@ -251,15 +251,15 @@ class Screen:
             words = correct_chars // 5
             return words
         except AttributeError:
-            pass
+            return 0
 
 
         
     def end(self):
-        # # with open("result.txt", "a") as data:
-        # #     data.write(f"WPM: {self.wpm()}, CPM: {self.count_press}, Accuracy: {self.succes_rate()}%, Time: {self.seconds} seconds\n")
-        # # messagebox.showinfo("Type Speed Test", f"Your WPM: {self.wpm()}, CPM:{self.count_press}, Accuracy: {self.succes_rate()}%")
-        pass
+        with open("result.txt", "a") as data:
+            data.write(f"WPM: {self.wpm()}, CPM: {self.count_press}, Accuracy: {self.succes_rate()}%, Time: {self.seconds} seconds\n")
+        messagebox.showinfo("Type Speed Test", f"Your WPM: {self.wpm()}, CPM:{self.count_press}, Accuracy: {self.succes_rate()}%")
+        self.type_input.config(state="disabled")
     
     def restart_game(self):
         
