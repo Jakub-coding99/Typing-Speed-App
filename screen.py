@@ -25,7 +25,8 @@ class Screen:
         self.intro()
         self.words = self.get_text()
         self.succes_rate()
-    
+        for i in range(6):
+            self.window.columnconfigure(i, weight=1)
         
         self.window.mainloop()
 
@@ -102,47 +103,48 @@ class Screen:
 
     def widgets(self):
         
-        self.accuraccy = Label(text=f"ACCURACY: {self.succes_rate()} %", fg="WHITE",bg="black")
-        self.accuraccy.grid(row=0,column=3)
+        stats_frame = Frame(self.window, bg="black")
+        stats_frame.grid(row=1,column=3, sticky="e",pady=10)
 
-        minutes,second = divmod(self.seconds, 60)
-        self.timer = Label(text=f"TIME: {minutes:02d}:{second:02d}", fg="WHITE",bg="black")
-        self.timer.grid(row=0,column=0,sticky="w",padx=20)
-  
+
+       
+
         #characters per minute
-        self.cpm = Label(text=f"CPM: {self.count_press}", fg="WHITE",bg="black")
-        self.cpm.grid(row=0,column=1,padx=20)
+        self.cpm = Label(stats_frame,text=f"CPM: {self.count_press}", fg="WHITE",bg="black")
+        self.cpm.pack(side="right",padx=5)
+        
+        self.wpm_widget = Label(stats_frame,text=f"WPM: {self.wpm()}", fg="WHITE",bg="black")
+        self.wpm_widget.pack(side="right",padx=5)
 
-        self.wpm_widget = Label(text=f"WPM: {self.wpm()}", fg="WHITE",bg="black")
-        self.wpm_widget.grid(row=0,column=2)  
+        self.accuraccy = Label(stats_frame,text=f"ACCURACY: {self.succes_rate()} %", fg="WHITE",bg="black")
+        self.accuraccy.pack(side="right",padx=5)
 
-        self.mistake_widget = Label(text = f"Mistakes: {self.mistakes}", fg="WHITE",bg="black")
-        self.mistake_widget.grid(row=0, column=4)
-
+        self.mistake_widget = Label(stats_frame,text = f"Mistakes: {self.mistakes}", fg="WHITE",bg="black")
+        self.mistake_widget.pack(side="right",padx=5)
+    
+        minutes,second = divmod(self.seconds, 60)
+        self.timer = Label(stats_frame, text=f"TIME: {minutes:02d}:{second:02d}", fg="WHITE",bg="black")
+        self.timer.pack(side="right", padx=5)
     
     def intro(self):
-        self.window.rowconfigure(0,weight=1)
-        self.window.rowconfigure(1,weight=3)
+        
+        
         self.window.rowconfigure(2,weight=1)
         
         
-        self.window.columnconfigure(0,weight=3)
-
-        # self.window.columnconfigure(1,weight=3)
-        # self.window.columnconfigure(2,weight=3)
-        # self.window.columnconfigure(3,weight=3)
-        
-        
+        # self.window.columnconfigure(0,weight=1)
+        # self.window.columnconfigure(1,weight=1)
+        # self.window.columnconfigure(2,weight=1)
        
+        title_label = Label(text="Typing speed test",fg="white", width=20,background="black",font=("Arial",25),)
+        title_label.grid(row=0,column=0,columnspan=5,sticky="n")
         
-        choose_label = Label(text="Typing speed test",fg="white", width=20,background="black",font=("Arial",25),)
-        choose_label.grid(row=0,column=0, sticky="n")
         
         self.start_btn = Button(text="Start", fg="black", background="white",font=("Arial",20),command=self.start)
-        self.start_btn.grid(row=2,column=0,sticky="s")
+        self.start_btn.grid(row=3,column=2)
 
         self.instruction_btn = Button(text="Instruction", fg="black", background="white",font=("Arial",20),command= self.instructions)
-        self.instruction_btn.grid(row=1,column=0,sticky="")
+        self.instruction_btn.grid(row=2,column=2)
         
 
     def instructions(self):
@@ -160,16 +162,16 @@ class Screen:
     def start(self):
         self.instruction_btn.destroy()
         self.widgets()
-        self.type_input.grid(row = 4,column=0)
+        self.type_input.grid(row = 4,column=0, columnspan=4, sticky="ew", pady=10)
         
         
         
         self.restart = Button(text="RESTART", bg="black",fg="white",padx=5,command=self.restart_game )
-        self.restart.grid(row= 5,column=0)
+        self.restart.grid(row= 5,columnspan=4)
         
         
         self.write_below = Label(text="WRITE BELOW:",fg="white",bg="black")
-        self.write_below.grid(row=3,column =0,sticky="ns")
+        self.write_below.grid(row=3,column =0,sticky="w")
         
         
         #adding space after each word
@@ -192,7 +194,8 @@ class Screen:
         self.word_label.tag_configure("red",foreground="red")
         self.word_label.tag_configure("white",foreground="white")
         self.word_label.insert(END,text_1)
-        self.word_label.grid(row=1,column=0)
+        
+        self.word_label.grid(row=2,column=0, columnspan=4,ipady = 30)
 
     
   
@@ -203,8 +206,6 @@ class Screen:
         self.wpm_widget.config(text=f"WPM: {self.wpm()}")
         self.mistake_widget.config(text = f"Mistakes: {self.mistakes}" )
         
-        print(self.mistakes)
-        
     
 
     def mark_correct(self):
@@ -213,13 +214,7 @@ class Screen:
         self.index += 1
         self.count_press += 1
         if self.corrected_mistake > 0 and self.mistakes > 0:
-            
-            # self.mistakes -= 1
             self.corrected_mistake -= 1
-
-        
-        # if self.mistakes > 0:
-        #     self.mistakes -= 1
     
     def mark_wrong(self):
     
@@ -249,7 +244,10 @@ class Screen:
         try:
             correct_chars = len(self.entry_list) - self.mistakes
             words = correct_chars // 5
-            return words
+            if words < 0:
+                return 0
+            else:
+                return words
         except AttributeError:
             return 0
 
@@ -260,13 +258,12 @@ class Screen:
             data.write(f"WPM: {self.wpm()}, CPM: {self.count_press}, Accuracy: {self.succes_rate()}%, Time: {self.seconds} seconds\n")
         messagebox.showinfo("Type Speed Test", f"Your WPM: {self.wpm()}, CPM:{self.count_press}, Accuracy: {self.succes_rate()}%")
         self.type_input.config(state="disabled")
+        
     
     def restart_game(self):
-        
         self.window.destroy()
         screen = Screen()
         
-        self.intro()
         
 
 
