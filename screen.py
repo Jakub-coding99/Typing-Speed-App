@@ -2,8 +2,8 @@
 from tkinter import *
 from tkinter import messagebox
 
-# TO DO:
-# popravim time widget, prozkoumat logiku corrected mistake
+# # TO DO:
+#  logiku corrected mistake
 
 class Screen:
     def __init__(self):
@@ -127,15 +127,7 @@ class Screen:
         self.timer.pack(side="right", padx=5)
     
     def intro(self):
-        
-        
         self.window.rowconfigure(2,weight=1)
-        
-        
-        # self.window.columnconfigure(0,weight=1)
-        # self.window.columnconfigure(1,weight=1)
-        # self.window.columnconfigure(2,weight=1)
-       
         title_label = Label(text="Typing speed test",fg="white", width=20,background="black",font=("Arial",25),)
         title_label.grid(row=0,column=0,columnspan=5,sticky="n")
         
@@ -143,12 +135,30 @@ class Screen:
         self.start_btn = Button(text="Start", fg="black", background="white",font=("Arial",20),command=self.start)
         self.start_btn.grid(row=3,column=2)
 
-        self.instruction_btn = Button(text="Instruction", fg="black", background="white",font=("Arial",20),command= self.instructions)
+        self.instruction_btn = Button(text="Instructions", fg="black", background="white",font=("Arial",20),command= self.instructions)
         self.instruction_btn.grid(row=2,column=2)
         
 
     def instructions(self):
-        print("work")
+        self.instruction_btn.destroy()
+        self.instructions_label = Label(text="Welcome to Typing Test App!\n"
+                                            "Start by clicking on Start.\n"
+                                            "Click to entry point, once you start typing the coutndown is on. \n"
+                                            "If you type incorrect characters you can delete and type it corretly,\n" \
+                                            "however it will count as mistake"
+                                            
+                                            "\n"
+                                            "Explanation: \n"
+                                            "\n"
+                                            "  - CPM - charactes per minute \n"
+                                            "  - WPM - words per minutes (5 correct characters) \n"
+                                            "  - MISTAKES - number of wrong characters \n"
+                                            "  - ACCURACY - percentage of correct characters"
+                                            ,
+                                   
+                                   background="black",font=("Arial",15, "bold"),fg="red",justify=LEFT,
+        )
+        self.instructions_label.grid(row=2, column=1,columnspan=3, sticky="ew", ipady=20)
 
     def get_text(self):
         import random
@@ -160,11 +170,14 @@ class Screen:
             
         
     def start(self):
+        if hasattr(self, "instructions_label") and self.instructions_label.winfo_ismapped():
+            self.instructions_label.destroy()
+
+        
         self.instruction_btn.destroy()
+        
         self.widgets()
         self.type_input.grid(row = 4,column=0, columnspan=4, sticky="ew", pady=10)
-        
-        
         
         self.restart = Button(text="RESTART", bg="black",fg="white",padx=5,command=self.restart_game )
         self.restart.grid(row= 5,columnspan=4)
