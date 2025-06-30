@@ -1,3 +1,3 @@
 from screen import Screen
 
-# screen = Screen()
+screen = Screen()

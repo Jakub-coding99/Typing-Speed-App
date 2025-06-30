@@ -2,13 +2,12 @@
 from tkinter import *
 from tkinter import messagebox
 
-# # TO DO:
-#  logiku corrected mistake
+
 
 class Screen:
     def __init__(self):
         self.window = Tk()
-        self.window.minsize(height=500, width=900)
+        self.window.geometry("900x500+400+200")
         self.window.title("Typing Speed App")
         self.window.config(pady=30,padx=30,background="black")
         self.control_text = []
@@ -21,7 +20,7 @@ class Screen:
         self.type_input.bind ("<KeyRelease>", lambda event: self.write())
         self.type_input.bind("<BackSpace>", self.backspace)
         self.corrected_mistake = 0
-        self.seconds = 5 # choose your second timer
+        self.seconds = 60 # choose your second timer
         self.intro()
         self.words = self.get_text()
         self.succes_rate()
@@ -54,10 +53,12 @@ class Screen:
            
             if self.words_list[self.index] == self.entry_list[self.index]:
                 self.mark_correct()
+                self.update_statistics()
                 
 
             elif self.words_list[self.index] != self.entry_list[self.index] and len(self.entry_list) > self.index:
                 self.mark_wrong()
+                self.update_statistics()
             
         
         except IndexError:
@@ -78,7 +79,7 @@ class Screen:
                 self.word_label.tag_remove("green",f"1.{self.index}", f"1.{self.index + 1}")
                 self.control()
         
-        except IndexError:
+        except (IndexError, AttributeError):
             pass
     
     
@@ -88,6 +89,9 @@ class Screen:
         if count >= 0:
             minutes, second = divmod(count, 60)
             self.timer.config(text = f"TIME: {minutes:02d}:{second:02d}")
+            if count < 5:
+                
+                self.timer.config(fg="red")
             
             if count >0:
                 t = self.window.after(1000,self.count_down, count -1)
@@ -104,26 +108,34 @@ class Screen:
     def widgets(self):
         
         stats_frame = Frame(self.window, bg="black")
-        stats_frame.grid(row=1,column=3, sticky="e",pady=10)
-
-
-       
+        stats_frame.grid(row=1,column=1, sticky="e",pady=10)
 
         #characters per minute
-        self.cpm = Label(stats_frame,text=f"CPM: {self.count_press}", fg="WHITE",bg="black")
+        self.cpm = Label(stats_frame,text=f"CPM: {self.count_press}", fg="WHITE",bg="black", font=("Arial",15))
         self.cpm.pack(side="right",padx=5)
         
-        self.wpm_widget = Label(stats_frame,text=f"WPM: {self.wpm()}", fg="WHITE",bg="black")
+        self.wpm_widget = Label(stats_frame,text=f"WPM: {self.wpm()}", fg="WHITE",bg="black", font=("Arial",15))
         self.wpm_widget.pack(side="right",padx=5)
 
-        self.accuraccy = Label(stats_frame,text=f"ACCURACY: {self.succes_rate()} %", fg="WHITE",bg="black")
-        self.accuraccy.pack(side="right",padx=5)
+        
+        self.accuraccy_percentage = Label(stats_frame,text=f"{self.succes_rate()} %", fg="green",bg="black", font=("Arial",15))
+        self.accuraccy_percentage.pack(side="right",padx=5)
 
-        self.mistake_widget = Label(stats_frame,text = f"Mistakes: {self.mistakes}", fg="WHITE",bg="black")
-        self.mistake_widget.pack(side="right",padx=5)
-    
+        self.accuraccy = Label(stats_frame,text="ACCURACY: ", fg="WHITE",bg="black", font=("Arial",15))
+        self.accuraccy.pack(side="right",)
+
+
+
+        # mistakes widget
+        self.mistake_count = Label(stats_frame,text = self.mistakes, fg="red",bg="black", font=("Arial",15))
+        self.mistake_count.pack(side="right",padx=5)
+
+        self.mistake_widget = Label(stats_frame,text = "Mistakes:", fg="WHITE",bg="black", font=("Arial",15))
+        self.mistake_widget.pack(side="right")
+
+        
         minutes,second = divmod(self.seconds, 60)
-        self.timer = Label(stats_frame, text=f"TIME: {minutes:02d}:{second:02d}", fg="WHITE",bg="black")
+        self.timer = Label(stats_frame, text=f"TIME: {minutes:02d}:{second:02d}", fg="WHITE",bg="black", font=("Arial",15))
         self.timer.pack(side="right", padx=5)
     
     def intro(self):
@@ -140,26 +152,43 @@ class Screen:
         
 
     def instructions(self):
-        self.instruction_btn.destroy()
-        self.instructions_label = Label(text="Welcome to Typing Test App!\n"
+        instruction_window = Toplevel(self.window)
+        instruction_window.title("Instructions")
+        instruction_window.geometry("700x350+1100+250")
+        instruction_window.config(bg="black", padx=20, pady=20)
+
+        
+        
+        self.instructions_label = Label(instruction_window,text="Welcome to Typing Test App!\n"
                                             "Start by clicking on Start.\n"
-                                            "Click to entry point, once you start typing the coutndown is on. \n"
-                                            "If you type incorrect characters you can delete and type it corretly,\n" \
+                                            "Click to entry point, once you start typing the countdown is on! \n"
+                                            "If you type incorrect characters you can delete and type it correctly,\n" \
                                             "however it will count as mistake"
                                             
                                             "\n"
                                             "Explanation: \n"
-                                            "\n"
-                                            "  - CPM - charactes per minute \n"
-                                            "  - WPM - words per minutes (5 correct characters) \n"
+                                            "  - CPM - characters per minute \n"
+                                            "  - WPM - words per minute (5 correct characters) \n"
                                             "  - MISTAKES - number of wrong characters \n"
                                             "  - ACCURACY - percentage of correct characters"
                                             ,
                                    
                                    background="black",font=("Arial",15, "bold"),fg="red",justify=LEFT,
         )
-        self.instructions_label.grid(row=2, column=1,columnspan=3, sticky="ew", ipady=20)
-
+        self.instructions_label.grid(row=2, column=1,columnspan=3, sticky="ew", ipady=18)
+        
+        def check_mapped():
+            if self.instructions_label.winfo_ismapped():
+                self.instruction_btn.config(state="disabled")
+        
+        self.window.after(100,check_mapped)
+        instruction_window.protocol("WM_DELETE_WINDOW",lambda:self.close_window(instruction_window))
+        
+    def close_window(self,window):
+        window.destroy()
+        self.instruction_btn.config(state="normal")
+    
+    
     def get_text(self):
         import random
         with open("words.txt","r") as self.words:
@@ -170,10 +199,7 @@ class Screen:
             
         
     def start(self):
-        if hasattr(self, "instructions_label") and self.instructions_label.winfo_ismapped():
-            self.instructions_label.destroy()
-
-        
+    
         self.instruction_btn.destroy()
         
         self.widgets()
@@ -213,11 +239,10 @@ class Screen:
     
   
     def update_statistics(self):
-    
-        self.accuraccy.config(text=f"ACCURACY: {self.succes_rate()}%")
+        self.accuraccy_percentage.config(text =f"{self.succes_rate()} %")
         self.cpm.config(text=f"CPM: {self.count_press}")
         self.wpm_widget.config(text=f"WPM: {self.wpm()}")
-        self.mistake_widget.config(text = f"Mistakes: {self.mistakes}" )
+        self.mistake_count.config(text = self.mistakes )
         
     
 
@@ -244,12 +269,12 @@ class Screen:
         rounded_perc = round(perc,1)
         
         if rounded_perc < 0:
-            return 0
+            return 0.0
         
         else:
             return rounded_perc
        except (ZeroDivisionError,AttributeError, TypeError):
-           return 0
+           return 0.0
        
 
 
@@ -282,6 +307,6 @@ class Screen:
 
 
 
-screen = Screen()
+
 
 
