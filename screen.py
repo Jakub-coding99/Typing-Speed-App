@@ -191,7 +191,10 @@ class Screen:
     
     def get_text(self):
         import random
-        with open("words.txt","r") as self.words:
+        import os
+        path = os.path.join(os.path.dirname(__file__), "words.txt")
+        with open(path,"r") as self.words:
+            print(self.words)
             x = self.words.read().splitlines()
             database = random.choices(x, k=500)
             return database
