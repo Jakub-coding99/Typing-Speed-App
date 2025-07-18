@@ -32,12 +32,15 @@ After running main.py the app will launch and display the starting screen.
 
 If you need instructions on how to use the app, click the **"Instructions"** button to display the instruction screen:
 
+![Image](https://github.com/user-attachments/assets/18b77f6a-81dd-49ad-a780-fc8537227bb4)
 
 When you click **"Start"** the app displays screen like this. The countdown starts by typing to text entry.
 
+![Image](https://github.com/user-attachments/assets/d5bceb23-9cf5-4f44-951d-e348b28cfd21)
 
 Once the coundown reaches zero you will see your final result, which is also saved to "result.txt".
 
+![Image](https://github.com/user-attachments/assets/dcbf8796-a31a-4584-89c2-d57977c0b285)
 
 ## Technologies Used
 * Python
