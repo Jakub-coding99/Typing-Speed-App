@@ -28,6 +28,8 @@ run main.py
 
 After running main.py the app will launch and display the starting screen.
 
+![Image](https://github.com/user-attachments/assets/2afa7396-07fe-48cb-af76-5097632aa775)
+
 If you need instructions on how to use the app, click the **"Instructions"** button to display the instruction screen:
 
 
